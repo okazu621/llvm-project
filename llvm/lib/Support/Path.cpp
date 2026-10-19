@@ -1336,6 +1336,15 @@ Error TempFile::keep(const Twine &Name) {
       remove(TmpName);
   }
 #else
+
+#ifdef __EMSCRIPTEN__
+  // OPFS does not allow moving a file while its AccessHandle is open.
+  // Close the file before rename() so WasmFS OPFS can perform the move.
+  if (close(FD) == -1)
+    return errorCodeToError(errnoAsErrorCode());
+  FD = -1;
+#endif
+
   std::error_code RenameEC = fs::rename(TmpName, Name);
   if (RenameEC) {
     // If we can't rename, try to copy to work around cross-device link issues.
@@ -1350,9 +1359,11 @@ Error TempFile::keep(const Twine &Name) {
   if (!RenameEC)
     TmpName = "";
 
+#ifndef __EMSCRIPTEN__
   if (close(FD) == -1)
     return errorCodeToError(errnoAsErrorCode());
   FD = -1;
+#endif
 
   return errorCodeToError(RenameEC);
 }

@@ -2561,6 +2561,23 @@ StringRef CodeGenModule::getMangledName(GlobalDecl GD) {
   const auto *ND = cast<NamedDecl>(GD.getDecl());
   std::string MangledName = getMangledNameImpl(*this, GD, ND);
 
+
+  // ============================================================
+  // WASM user entry point
+  //
+  // Keep main() unchanged during parsing and semantic analysis.
+  // Rename only the generated symbol.
+  // main -> user_main
+  // ============================================================
+
+  if (CodeGenOpts.WasmUserMain)
+  {
+    if (const auto *FD = dyn_cast<FunctionDecl>(CanonicalGD.getDecl()); FD && FD->isMain())
+    {
+      MangledName = "user_main";
+    }
+  }
+
   // Ensure either we have different ABIs between host and device compilations,
   // says host compilation following MSVC ABI but device compilation follows
   // Itanium C++ ABI or, if they follow the same ABI, kernel names after

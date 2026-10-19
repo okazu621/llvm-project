@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "clang/Driver/Job.h"
+#include "InProcessWasmLinker.h"
 #include "clang/Basic/LLVM.h"
 #include "clang/Driver/Driver.h"
 #include "clang/Driver/InputInfo.h"
@@ -366,6 +367,15 @@ int Command::Execute(ArrayRef<std::optional<StringRef>> Redirects,
   }
 
   auto Args = llvm::toStringRefArray(Argv.data());
+
+#if defined(__EMSCRIPTEN__) && defined(CLANG_ENABLE_IN_PROCESS_WASM_LINKER)
+  // llvm::errs() << "EXECUTE: " << Executable << "InProcess=" << InProcess << "\n";
+  if (InProcess &&
+      llvm::sys::path::stem(Executable).ends_with_insensitive("wasm-ld")) {
+    llvm::ArrayRef<const char *> LLDArgs(Argv.data(), Argv.size() - 1);
+    return ExecuteInProcessWasmLinker(LLDArgs, ErrMsg, ExecutionFailed);
+  }
+#endif
 
   // Use Job-specific redirect files if they are present.
   if (!RedirectFiles.empty()) {

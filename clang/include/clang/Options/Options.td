@@ -9928,3 +9928,7 @@ def wasm_opt : Flag<["--"], "wasm-opt">,
   Group<m_Group>,
   HelpText<"Enable the wasm-opt optimizer (default)">,
   MarshallingInfoNegativeFlag<LangOpts<"NoWasmOpt">>;
+
+def fwasm_user_main : Flag<["-"], "fwasm-user-main">,
+  Visibility<[ClangOption, CC1Option]>,
+  HelpText<"Rename main symbol to user_main">;

@@ -2333,6 +2333,8 @@ bool CompilerInvocation::ParseCodeGenArgs(CodeGenOptions &Opts, ArgList &Args,
       Opts.HLSLParsedCommandLine = std::move(*ParsedArgs);
   }
 
+  Opts.WasmUserMain = Args.hasArg(options::OPT_fwasm_user_main);
+
   return Diags.getNumErrors() == NumErrorsBefore;
 }
 

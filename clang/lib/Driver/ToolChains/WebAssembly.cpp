@@ -226,9 +226,16 @@ void wasm::Linker::ConstructJob(Compilation &C, const JobAction &JA,
     CmdArgs.push_back("--keep-section=target_features");
   }
 
-  C.addCommand(std::make_unique<Command>(JA, *this,
-                                         ResponseFileSupport::AtFileCurCP(),
-                                         Linker, CmdArgs, Inputs, Output));
+  auto LinkCommand =
+      std::make_unique<Command>(JA, *this, ResponseFileSupport::AtFileCurCP(),
+                                Linker, CmdArgs, Inputs, Output);
+
+#if defined(__EMSCRIPTEN__)
+  if (llvm::sys::path::stem(Linker).ends_with_insensitive("wasm-ld"))
+    LinkCommand->InProcess = true;
+#endif
+
+  C.addCommand(std::move(LinkCommand));
 
   if (Arg *A = Args.getLastArg(options::OPT_O_Group)) {
     if (!WasmOptPath.empty()) {
@@ -522,7 +529,15 @@ void WebAssembly::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
   const Driver &D = getDriver();
 
   if (!DriverArgs.hasArg(options::OPT_nobuiltininc)) {
-    SmallString<128> P(D.ResourceDir);
+    SmallString<128> P;
+
+    if (llvm::sys::path::is_absolute(D.ResourceDir)) {
+      P = D.ResourceDir;
+    } else {
+      P = D.SysRoot;
+      llvm::sys::path::append(P, D.ResourceDir);
+    }
+
     llvm::sys::path::append(P, "include");
     addSystemInclude(DriverArgs, CC1Args, P);
   }

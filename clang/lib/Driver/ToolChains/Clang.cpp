@@ -8224,6 +8224,9 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
 
   Args.AddLastArg(CmdArgs, options::OPT_falloc_token_max_EQ);
 
+  // Forward -fwasm-user-main to cc1.
+  Args.AddLastArg(CmdArgs, options::OPT_fwasm_user_main);
+
 #if CLANG_ENABLE_CIR
   // Forward -mmlir arguments to to the MLIR option parser.
   for (const Arg *A : Args.filtered(options::OPT_mmlir)) {

@@ -9,6 +9,11 @@ set(LLVM_LINK_COMPONENTS
   WindowsDriver
   )
 
+if(EMSCRIPTEN AND "lld" IN_LIST LLVM_ENABLE_PROJECTS)
+  set(WASM_LINK lldWasm)
+  set(COMMON_LINK lldCommon)
+endif()
+
 if(WIN32)
   # MSVCToolChain.cpp uses version.dll.
   set(system_libs version)
@@ -30,6 +35,7 @@ add_clang_library(clangDriver
   Distro.cpp
   Driver.cpp
   Job.cpp
+  InProcessWasmLinker.cpp
   ModulesDriver.cpp
   Multilib.cpp
   MultilibBuilder.cpp
@@ -118,5 +124,19 @@ add_clang_library(clangDriver
   clangSerialization
   clangLex
   clangOptions
+  ${WASM_LINK}
+  ${COMMON_LINK}
   ${system_libs}
   )
+
+if(EMSCRIPTEN AND "lld" IN_LIST LLVM_ENABLE_PROJECTS)
+  target_include_directories(obj.clangDriver PRIVATE
+    ${LLVM_MAIN_SRC_DIR}/../lld/include)
+endif()
+
+if(CLANG_ENABLE_IN_PROCESS_WASM_LINKER)
+  target_compile_definitions(obj.clangDriver
+    PRIVATE
+      CLANG_ENABLE_IN_PROCESS_WASM_LINKER
+  )
+endif()

@@ -16,6 +16,16 @@
 #include <optional>
 #include <system_error>
 
+#ifdef __EMSCRIPTEN__
+
+#include <cstdio>
+
+extern "C" void clangd_lsp_output(
+    const char *data,
+    size_t size);
+
+#endif
+
 namespace clang {
 namespace clangd {
 namespace {
@@ -65,7 +75,12 @@ public:
   JSONTransport(std::FILE *In, llvm::raw_ostream &Out,
                 llvm::raw_ostream *InMirror, bool Pretty, JSONStreamStyle Style)
       : In(In), Out(Out), InMirror(InMirror ? *InMirror : llvm::nulls()),
-        Pretty(Pretty), Style(Style) {}
+        Pretty(Pretty), Style(Style) {
+#ifdef __EMSCRIPTEN__
+    if (In)
+      std::setvbuf(In, nullptr, _IONBF, 0);
+#endif
+  }
 
   void notify(llvm::StringRef Method, llvm::json::Value Params) override {
     sendMessage(llvm::json::Object{
@@ -136,9 +151,19 @@ private:
     OutputBuffer.clear();
     llvm::raw_svector_ostream OS(OutputBuffer);
     OS << llvm::formatv(Pretty ? "{0:2}" : "{0}", Message);
+#ifdef __EMSCRIPTEN__
+    SmallString<4096> Output;
+    llvm::raw_svector_ostream OutStream(Output);
+
+    OutStream << "Content-Length: " << OutputBuffer.size() << "\r\n\r\n"
+              << OutputBuffer;
+
+    clangd_lsp_output(Output.data(), Output.size());
+#else
     Out << "Content-Length: " << OutputBuffer.size() << "\r\n\r\n"
         << OutputBuffer;
     Out.flush();
+#endif
     vlog(">>> {0}\n", OutputBuffer);
   }
 

@@ -5558,11 +5558,13 @@ void Driver::BuildJobs(Compilation &C) const {
                        /*TargetDeviceOffloadKind*/ Action::OFK_None);
   }
 
+#if !defined(__EMSCRIPTEN__)
   // If we have more than one job, then disable integrated-cc1 for now. Do this
   // also when we need to report process execution statistics.
   if (C.getJobs().size() > 1 || CCPrintProcessStats)
     for (auto &J : C.getJobs())
       J.InProcess = false;
+#endif
 
   markOffloadDeviceCC1JobsForParallelExecution(C);
 
