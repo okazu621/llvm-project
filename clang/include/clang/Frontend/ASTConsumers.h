@@ -49,6 +49,14 @@ std::unique_ptr<ASTConsumer> CreateASTDeclNodeLister();
 // function declarations to stderr.
 std::unique_ptr<ASTConsumer> CreateASTViewer();
 
+// UML dumper: emits a compact, single-line JSON object containing only the
+// declarations required to build UML class and sequence diagrams
+// (-ast-dump-uml=json).  The project root limits which declarations are
+// emitted; MainFile is used for relative paths and the default root.
+std::unique_ptr<ASTConsumer>
+CreateASTUMLDumper(std::unique_ptr<raw_ostream> OS, StringRef ProjectRoot,
+                   StringRef MainFile);
+
 } // end clang namespace
 
 #endif

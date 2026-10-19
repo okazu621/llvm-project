@@ -111,6 +111,15 @@ ASTDumpAction::CreateASTConsumer(CompilerInstance &CI, StringRef InFile) {
 }
 
 std::unique_ptr<ASTConsumer>
+ASTUMLDumpAction::CreateASTConsumer(CompilerInstance &CI, StringRef InFile) {
+  const FrontendOptions &Opts = CI.getFrontendOpts();
+  // Dump to stdout, exactly like -ast-dump; the project root limits the
+  // emitted declarations and defaults to the input file's directory.
+  return CreateASTUMLDumper(nullptr /*Dump to stdout.*/,
+                            Opts.ASTUMLProjectRoot, InFile);
+}
+
+std::unique_ptr<ASTConsumer>
 ASTDeclListAction::CreateASTConsumer(CompilerInstance &CI, StringRef InFile) {
   return CreateASTDeclNodeLister();
 }

@@ -2802,6 +2802,7 @@ static const auto &getFrontendActionTable() {
       {frontend::ASTDump, OPT_ast_dump},
       {frontend::ASTDump, OPT_ast_dump_lookups},
       {frontend::ASTDump, OPT_ast_dump_decl_types},
+      {frontend::ASTUMLDump, OPT_ast_dump_uml_EQ},
 
       {frontend::ASTPrint, OPT_ast_print},
       {frontend::ASTView, OPT_ast_view},
@@ -2893,6 +2894,15 @@ static void GenerateFrontendArgs(const FrontendOptions &Opts,
   }
 
   // FIXME: Simplify the complex 'AST dump' command line.
+  if (Opts.ProgramAction == frontend::ASTUMLDump) {
+    GenerateProgramAction = [&]() {
+      if (Opts.ASTUMLProjectRoot.empty())
+        GenerateArg(Consumer, OPT_ast_dump_uml_EQ, "");
+      else
+        GenerateArg(Consumer, OPT_ast_dump_uml_EQ, Opts.ASTUMLProjectRoot);
+    };
+  }
+
   if (Opts.ProgramAction == frontend::ASTDump) {
     GenerateProgramAction = [&]() {
       // ASTDumpLookups, ASTDumpDeclTypes and ASTDumpFilter are generated via
@@ -3066,6 +3076,9 @@ static bool ParseFrontendArgs(FrontendOptions &Opts, ArgList &Args,
         Opts.ASTDumpFormat = ADOF_Default;
       }
     }
+
+    if (ProgramAction == frontend::ASTUMLDump && Opt == OPT_ast_dump_uml_EQ)
+      Opts.ASTUMLProjectRoot = A->getValue();
 
     if (ProgramAction == frontend::FixIt && Opt == OPT_fixit_EQ)
       Opts.FixItSuffix = A->getValue();
@@ -4719,6 +4732,7 @@ static bool isStrictlyPreprocessorAction(frontend::ActionKind Action) {
   switch (Action) {
   case frontend::ASTDeclList:
   case frontend::ASTDump:
+  case frontend::ASTUMLDump:
   case frontend::ASTPrint:
   case frontend::ASTView:
   case frontend::EmitAssembly:
@@ -4780,6 +4794,7 @@ static bool isCodeGenAction(frontend::ActionKind Action) {
     return true;
   case frontend::ASTDeclList:
   case frontend::ASTDump:
+  case frontend::ASTUMLDump:
   case frontend::ASTPrint:
   case frontend::ASTView:
   case frontend::ExtractAPI:

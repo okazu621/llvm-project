@@ -71,6 +71,15 @@ protected:
                                                  StringRef InFile) override;
 };
 
+/// Action for the -ast-dump-uml=<root> option: dumps only the information
+/// needed to build UML class and sequence diagrams, as compact single-line
+/// JSON.
+class ASTUMLDumpAction : public ASTFrontendAction {
+protected:
+  std::unique_ptr<ASTConsumer> CreateASTConsumer(CompilerInstance &CI,
+                                                 StringRef InFile) override;
+};
+
 class ASTDeclListAction : public ASTFrontendAction {
 protected:
   std::unique_ptr<ASTConsumer> CreateASTConsumer(CompilerInstance &CI,

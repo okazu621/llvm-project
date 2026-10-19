@@ -41,6 +41,10 @@ enum ActionKind {
   /// Parse ASTs and dump them.
   ASTDump,
 
+  /// Parse ASTs and dump only the data required for UML diagrams
+  /// (compact single-line JSON).
+  ASTUMLDump,
+
   /// Parse ASTs and print them.
   ASTPrint,
 
@@ -458,6 +462,11 @@ public:
 
   /// If given, filter dumped AST Decl nodes by this substring.
   std::string ASTDumpFilter;
+
+  /// For -ast-dump-uml=<root>, the project root that limits which
+  /// declarations are dumped; empty means "the directory of the input
+  /// file".
+  std::string ASTUMLProjectRoot;
 
   /// If given, enable code completion at the provided location.
   ParsedSourceLocation CodeCompletionAt;

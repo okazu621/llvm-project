@@ -39,6 +39,7 @@ add_clang_library(clangFrontend
   StandaloneDiagnostic.cpp
   TestModuleFileExtension.cpp
   TextDiagnostic.cpp
+  UMLDumper.cpp
   TextDiagnosticBuffer.cpp
   TextDiagnosticPrinter.cpp
   VerifyDiagnosticConsumer.cpp

@@ -8571,6 +8571,14 @@ def ast_dump_all_EQ : Joined<["-"], "ast-dump-all=">,
 def ast_dump_decl_types : Flag<["-"], "ast-dump-decl-types">,
   HelpText<"Include declaration types in AST dumps">,
   MarshallingInfoFlag<FrontendOpts<"ASTDumpDeclTypes">>;
+def ast_dump_uml_EQ : Joined<["-"], "ast-dump-uml=">,
+  Visibility<[CC1Option]>,
+  MetaVarName<"<project-root>">,
+  Group<Action_Group>,
+  HelpText<"Build ASTs and dump only the declarations needed for UML "
+           "class/sequence diagrams, as compact single-line JSON. The value "
+           "limits the dump to declarations inside the given project root; "
+           "if omitted, the directory of the input file is used.">;
 def templight_dump : Flag<["-"], "templight-dump">,
   HelpText<"Dump templight information to stdout">;
 def ast_dump_lookups : Flag<["-"], "ast-dump-lookups">,

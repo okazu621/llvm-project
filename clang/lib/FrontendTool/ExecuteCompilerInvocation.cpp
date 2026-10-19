@@ -62,6 +62,7 @@ CreateFrontendBaseAction(CompilerInstance &CI) {
   switch (CI.getFrontendOpts().ProgramAction) {
   case ASTDeclList:            return std::make_unique<ASTDeclListAction>();
   case ASTDump:                return std::make_unique<ASTDumpAction>();
+  case ASTUMLDump:             return std::make_unique<ASTUMLDumpAction>();
   case ASTPrint:               return std::make_unique<ASTPrintAction>();
   case ASTView:                return std::make_unique<ASTViewAction>();
   case DumpCompilerOptions:
